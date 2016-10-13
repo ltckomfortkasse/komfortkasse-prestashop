@@ -8,6 +8,7 @@
  * status: data type according to the shop system
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
+ * @version 1.4.5-prestashop
  */
 
 $order_extension = false;
