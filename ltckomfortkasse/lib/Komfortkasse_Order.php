@@ -8,7 +8,6 @@
  * status: data type according to the shop system
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
- * @version 1.4.4.13-prestashop
  */
 
 $order_extension = false;
@@ -48,11 +47,11 @@ class Komfortkasse_Order
 				FROM ' . _DB_PREFIX_ . 'orders o
 				WHERE 0 ';
         if ($use_prepayment)
-            $sql .= ' or (o.current_state in (' . (int)$status_prepayment . ') and o.module in (' . pSQL(self::quote($methods_prepayment)) . '))';
+            $sql .= ' or (o.current_state in (' . (int)$status_prepayment . ') and o.module in (' . (string)pSQL(self::quote($methods_prepayment)) . '))';
         if ($use_invoice)
-            $sql .= ' or (o.current_state in (' . (int)$status_invoice . ') and o.module in (' . pSQL(self::quote($methods_invoice)) . '))';
+            $sql .= ' or (o.current_state in (' . (int)$status_invoice . ') and o.module in (' . (string)pSQL(self::quote($methods_invoice)) . '))';
         if ($use_cod)
-            $sql .= ' or (o.current_state in (' . (int)$status_cod . ') and o.module in (' . pSQL(self::quote($methods_cod)) . '))';
+            $sql .= ' or (o.current_state in (' . (int)$status_cod . ') and o.module in (' . (string)pSQL(self::quote($methods_cod)) . '))';
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
@@ -266,7 +265,7 @@ class Komfortkasse_Order
     public static function getInvoicePdf($invoiceNumber)
     {
         // get newest id with that number (for numbers that reset every year)
-        $sql = 'SELECT id_order_invoice FROM ' . _DB_PREFIX_ . 'order_invoice o WHERE number=' . pSQL($invoiceNumber) . ' order by date_add desc limit 0, 1';
+        $sql = 'SELECT id_order_invoice FROM ' . _DB_PREFIX_ . 'order_invoice o WHERE number=' . (string)pSQL($invoiceNumber) . ' order by date_add desc limit 0, 1';
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
         if (empty($result))
             return;
