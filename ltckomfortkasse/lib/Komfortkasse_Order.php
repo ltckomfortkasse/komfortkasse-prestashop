@@ -266,7 +266,7 @@ class Komfortkasse_Order
     public static function getInvoicePdf($invoiceNumber)
     {
         // get newest id with that number (for numbers that reset every year)
-        $sql = 'SELECT id_order_invoice FROM ' . (string)_DB_PREFIX_ . 'order_invoice o WHERE number=' . (string)pSQL("$invoiceNumber") . ' order by date_add desc limit 0, 1';
+        $sql = 'SELECT id_order_invoice FROM ' . (string)_DB_PREFIX_ . 'order_invoice o WHERE number=\'' . (string)pSQL($invoiceNumber) . '\' order by date_add desc limit 0, 1';
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
         if (empty($result))
             return;
