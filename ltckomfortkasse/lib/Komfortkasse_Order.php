@@ -8,7 +8,7 @@
  * status: data type according to the shop system
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
- * @version 1.4.6-prestashop
+ * @version 1.7.7-prestashop
  */
 
 $order_extension = false;
@@ -44,7 +44,7 @@ class Komfortkasse_Order
         if (!$use_prepayment && !$use_invoice && !$use_cod)
             return ret;
 
-        $sql = 'SELECT id_order
+        $sql = 'SELECT reference
 				FROM ' . (string)_DB_PREFIX_ . 'orders o
 				WHERE 0 ';
         if ($use_prepayment)
@@ -57,7 +57,7 @@ class Komfortkasse_Order
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
         foreach ($result as $order) {
-            $ret [] = (int)$order ['id_order'];
+            $ret [] = $order ['reference'];
         }
 
         return $ret;
@@ -94,17 +94,23 @@ class Komfortkasse_Order
      */
     public static function getOrder($number)
     {
-        $order = new Order($number);
+        $orderColl = Order::getByReference($number);
+        if ($orderColl->count() != 1)
+            return null;
+
+        $id = $orderColl->getFirst()->id;
+        $order = new Order($id);
         if (empty($number) === true || empty($order) === true) {
             return null;
         }
 
         $ret = array ();
-        $ret ['number'] = $order->id;
+        $ret ['number'] = $order->reference;
+        $ret ['id'] = $order->id;
         $ret ['status'] = $order->getCurrentState();
         $ret ['date'] = date('d.m.Y', strtotime($order->date_add));
         $ret ['email'] = $order->getCustomer()->email;
-        $ret ['customer_number'] = $order->id_customer;
+        $ret ['customer_number'] = $order->id_customer; // TODO customer->reference?
         $ret ['payment_method'] = $order->module;
         $ret ['amount'] = $order->total_paid_tax_incl;
         $currency = new Currency($order->id_currency);
@@ -212,7 +218,7 @@ class Komfortkasse_Order
 
         // Hint: PAID and CANCELLED are supported as of now.
 
-        $order = new Order($order['number']);
+        $order = new Order($order['id']);
 
         // copied from AdminOrdersController
 

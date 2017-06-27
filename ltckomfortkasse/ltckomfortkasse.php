@@ -27,7 +27,7 @@ class LtcKomfortkasse extends Module
     {
         $this->name = 'ltckomfortkasse';
         $this->tab = 'payments_gateways';
-        $this->version = '1.4.6';
+        $this->version = '1.7.7';
         $this->author = 'Komfortkasse';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array ('min' => '1.5','max' => _PS_VERSION_
@@ -41,7 +41,6 @@ class LtcKomfortkasse extends Module
         $this->description = $this->l('Processing for payment by bank transfer (prepayment, cod, invoice)');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
-
     }
 
     public function getContent()
@@ -58,7 +57,6 @@ class LtcKomfortkasse extends Module
         }
 
         return $output . $this->displayForm();
-
     }
 
     public function displayForm()
@@ -193,7 +191,6 @@ class LtcKomfortkasse extends Module
         $helper->fields_value [Komfortkasse_Config::privatekey] = Komfortkasse_Config::getConfig(Komfortkasse_Config::privatekey);
 
         return $helper->generateForm($fields_form);
-
     }
 
     public function install()
@@ -209,7 +206,6 @@ class LtcKomfortkasse extends Module
         } else {
             return true;
         }
-
     }
 
     public function uninstall()

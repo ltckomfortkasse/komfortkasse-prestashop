@@ -3,7 +3,7 @@
 /**
  * Komfortkasse
  * Config Class
- * @version 1.4.3-prestashop */
+ * @version 1.7.7-prestashop */
 class Komfortkasse_Config
 {
     const activate_export = 'KOMFORTKASSE_ACTIVATE_EXPORT';
@@ -95,5 +95,11 @@ class Komfortkasse_Config
     public static function getVersion()
     {
         return _PS_VERSION_;
-    } // end getVersion()
+    }
+    // end getVersion()
+
+    public static function output($s)
+    {
+        echo $s;
+    }
 }//end class
