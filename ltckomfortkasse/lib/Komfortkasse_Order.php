@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Komfortkasse Order Class
  * in KK, an Order is an Array providing the following members:
@@ -8,9 +7,9 @@
  * status: data type according to the shop system
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
- * @version 1.7.7-prestashop
+ *
+ * @version 1.7.8-prestashop
  */
-
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
     $order_extension = true;
@@ -19,7 +18,6 @@ if (file_exists("Komfortkasse_Order_Extension.php") === true) {
 
 class Komfortkasse_Order
 {
-
 
     /**
      * Get open order IDs.
@@ -68,8 +66,8 @@ class Komfortkasse_Order
     private static function quote($csv)
     {
         return '\'' . str_replace(',', '\',\'', $csv) . '\'';
-    }
 
+    }
 
     /**
      * Get refund IDS.
@@ -84,7 +82,6 @@ class Komfortkasse_Order
     }
     // end getRefundIDs()
 
-
     /**
      * Get order.
      *
@@ -94,11 +91,15 @@ class Komfortkasse_Order
      */
     public static function getOrder($number)
     {
-        $orderColl = Order::getByReference($number);
-        if ($orderColl->count() != 1)
-            return null;
+        if (is_numeric($number)) {
+            $id = $number;
+        } else {
+            $orderColl = Order::getByReference($number);
+            if ($orderColl->count() != 1)
+                return null;
 
-        $id = $orderColl->getFirst()->id;
+            $id = $orderColl->getFirst()->id;
+        }
         $order = new Order($id);
         if (empty($number) === true || empty($order) === true) {
             return null;
@@ -110,7 +111,7 @@ class Komfortkasse_Order
         $ret ['status'] = $order->getCurrentState();
         $ret ['date'] = date('d.m.Y', strtotime($order->date_add));
         $ret ['email'] = $order->getCustomer()->email;
-        $ret ['customer_number'] = $order->id_customer; // TODO customer->reference?
+        $ret ['customer_number'] = $order->id_customer;
         $ret ['payment_method'] = $order->module;
         $ret ['amount'] = $order->total_paid_tax_incl;
         $currency = new Currency($order->id_currency);
@@ -124,8 +125,8 @@ class Komfortkasse_Order
                 // nicht getInvoiceNumberFormatted() verwenden, da wir sonst nie wieder auf die ID zurückkommen
                 $ret ['invoice_number'] [] = str_pad($invoice->number, 6, '0', STR_PAD_LEFT);
                 $invoiceDate = date('d.m.Y', strtotime($invoice->date_add));
-                if (!array_key_exists('invoice_date', $ret) || $ret['invoice_date'] == null || strtotime($ret['invoice_date']) < strtotime($invoiceDate)) {
-                    $ret['invoice_date'] = $invoiceDate;
+                if (!array_key_exists('invoice_date', $ret) || $ret ['invoice_date'] == null || strtotime($ret ['invoice_date']) < strtotime($invoiceDate)) {
+                    $ret ['invoice_date'] = $invoiceDate;
                 }
             }
         }
@@ -165,10 +166,10 @@ class Komfortkasse_Order
         }
 
         foreach ($order->getProductsDetail() as $item) {
-            if ($item['product_reference']) {
-                $ret ['products'] [] = $item['product_reference'];
+            if ($item ['product_reference']) {
+                $ret ['products'] [] = $item ['product_reference'];
             } else {
-                $ret ['products'] [] = $item['product_name'];
+                $ret ['products'] [] = $item ['product_name'];
             }
         }
 
@@ -184,7 +185,6 @@ class Komfortkasse_Order
 
     // end getOrder()
 
-
     /**
      * Get refund.
      *
@@ -199,7 +199,6 @@ class Komfortkasse_Order
     }
 
     // end getRefund()
-
 
     /**
      * Update order.
@@ -218,7 +217,7 @@ class Komfortkasse_Order
 
         // Hint: PAID and CANCELLED are supported as of now.
 
-        $order = new Order($order['id']);
+        $order = new Order($order ['id']);
 
         // copied from AdminOrdersController
 
@@ -228,9 +227,10 @@ class Komfortkasse_Order
         $history->changeIdOrderState($status, $order, $use_existings_payment);
 
         $carrier = new Carrier($order->id_carrier, $order->id_lang);
-        $templateVars = array();
+        $templateVars = array ();
         if ($history->id_order_state == Configuration::get('PS_OS_SHIPPING') && $order->shipping_number) {
-            $templateVars = array('{followup}' => str_replace('@', $order->shipping_number, $carrier->url));
+            $templateVars = array ('{followup}' => str_replace('@', $order->shipping_number, $carrier->url)
+            );
         }
 
         // Save all changes
@@ -238,16 +238,16 @@ class Komfortkasse_Order
             // synchronizes quantities if needed..
             if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT')) {
                 foreach ($order->getProducts() as $product) {
-                    if (StockAvailable::dependsOnStock($product['product_id'])) {
-                        StockAvailable::synchronize($product['product_id'], (int)$product['id_shop']);
+                    if (StockAvailable::dependsOnStock($product ['product_id'])) {
+                        StockAvailable::synchronize($product ['product_id'], (int)$product ['id_shop']);
                     }
                 }
             }
         }
+
     }
 
     // end updateOrder()
-
 
     /**
      * Update order.
@@ -269,7 +269,6 @@ class Komfortkasse_Order
 
     }
 
-
     public static function getInvoicePdf($invoiceNumber)
     {
         // get newest id with that number (for numbers that reset every year)
@@ -278,7 +277,7 @@ class Komfortkasse_Order
         if (empty($result))
             return;
 
-        $id = $result[0]['id_order_invoice'];
+        $id = $result [0] ['id_order_invoice'];
         if (!$id)
             return;
 
@@ -286,7 +285,9 @@ class Komfortkasse_Order
         if (!Validate::isLoadedObject($order_invoice))
             return;
 
-        Hook::exec('actionPDFInvoiceRender', array('order_invoice_list' => array($order_invoice)));
+        Hook::exec('actionPDFInvoiceRender', array ('order_invoice_list' => array ($order_invoice
+        )
+        ));
 
         $pdf = new PDF($order_invoice, PDF::TEMPLATE_INVOICE, Context::getContext()->smarty);
         $output = $pdf->render('S');
@@ -295,5 +296,6 @@ class Komfortkasse_Order
         http_response_code(200);
 
         echo $output;
+
     }
 }//end class
