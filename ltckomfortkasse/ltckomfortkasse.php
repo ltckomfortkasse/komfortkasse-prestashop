@@ -27,7 +27,7 @@ class LtcKomfortkasse extends Module
     {
         $this->name = 'ltckomfortkasse';
         $this->tab = 'payments_gateways';
-        $this->version = '1.7.8';
+        $this->version = '1.7.9';
         $this->author = 'Komfortkasse';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array ('min' => '1.5','max' => _PS_VERSION_
@@ -201,7 +201,27 @@ class LtcKomfortkasse extends Module
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        if (!parent::install() || !$this->registerHook('actionOrderStatusPostUpdate') || !Configuration::updateValue(Komfortkasse_Config::activate_export, true) || !Configuration::updateValue(Komfortkasse_Config::activate_update, true) || !Configuration::updateValue(Komfortkasse_Config::payment_methods, 'bankwire') || !Configuration::updateValue(Komfortkasse_Config::status_open, '10') || !Configuration::updateValue(Komfortkasse_Config::status_paid, '2') || !Configuration::updateValue(Komfortkasse_Config::status_cancelled, '6') || !Configuration::updateValue(Komfortkasse_Config::payment_methods_invoice, '') || !Configuration::updateValue(Komfortkasse_Config::status_open_invoice, '4') || !Configuration::updateValue(Komfortkasse_Config::status_paid_invoice, '') || !Configuration::updateValue(Komfortkasse_Config::status_cancelled_invoice, '') || !Configuration::updateValue(Komfortkasse_Config::payment_methods_cod, '') || !Configuration::updateValue(Komfortkasse_Config::status_open_cod, '4') || !Configuration::updateValue(Komfortkasse_Config::status_paid_cod, '') || !Configuration::updateValue(Komfortkasse_Config::status_cancelled_cod, '') || !Configuration::updateValue(Komfortkasse_Config::encryption, '') || !Configuration::updateValue(Komfortkasse_Config::accesscode, '') || !Configuration::updateValue(Komfortkasse_Config::apikey, '') || !Configuration::updateValue(Komfortkasse_Config::publickey, '') || !Configuration::updateValue(Komfortkasse_Config::privatekey, '')) {
+        if (!parent::install() ||
+                !$this->registerHook('actionOrderStatusPostUpdate') ||
+                !Configuration::updateValue(Komfortkasse_Config::activate_export, true) ||
+                !Configuration::updateValue(Komfortkasse_Config::activate_update, true) ||
+                !Configuration::updateValue(Komfortkasse_Config::payment_methods, 'bankwire') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_open, '10') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_paid, '2') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_cancelled, '6') ||
+                !Configuration::updateValue(Komfortkasse_Config::payment_methods_invoice, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_open_invoice, '4') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_paid_invoice, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_cancelled_invoice, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::payment_methods_cod, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_open_cod, '4') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_paid_cod, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::status_cancelled_cod, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::encryption, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::accesscode, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::apikey, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::publickey, '') ||
+                !Configuration::updateValue(Komfortkasse_Config::privatekey, '')) {
             return false;
         } else {
             return true;
