@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.7.8-prestashop
+ * @version 1.7.11-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -46,11 +46,11 @@ class Komfortkasse_Order
 				FROM ' . (string)_DB_PREFIX_ . 'orders o
 				WHERE 0 ';
         if ($use_prepayment)
-            $sql .= ' or (o.current_state in (' . (int)$status_prepayment . ') and o.module in (' . (string)self::quote("$methods_prepayment") . '))';
+            $sql .= ' or (o.current_state in (' . (string)$status_prepayment . ') and o.module in (' . (string)self::quote("$methods_prepayment") . '))';
         if ($use_invoice)
-            $sql .= ' or (o.current_state in (' . (int)$status_invoice . ') and o.module in (' . (string)self::quote("$methods_invoice") . '))';
+            $sql .= ' or (o.current_state in (' . (string)$status_invoice . ') and o.module in (' . (string)self::quote("$methods_invoice") . '))';
         if ($use_cod)
-            $sql .= ' or (o.current_state in (' . (int)$status_cod . ') and o.module in (' . (string)self::quote("$methods_cod") . ')';
+            $sql .= ' or (o.current_state in (' . (string)$status_cod . ') and o.module in (' . (string)self::quote("$methods_cod") . ')';
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
@@ -109,6 +109,9 @@ class Komfortkasse_Order
         $ret ['number'] = $order->reference;
         $ret ['id'] = $order->id;
         $ret ['status'] = $order->getCurrentState();
+        $status_full = $order->getCurrentStateFull(Configuration::get('PS_LANG_DEFAULT'));
+        if (is_array($status_full))
+            $ret ['status_name'] = $status_full['name'];
         $ret ['date'] = date('d.m.Y', strtotime($order->date_add));
         $ret ['email'] = $order->getCustomer()->email;
         $ret ['customer_number'] = $order->id_customer;
