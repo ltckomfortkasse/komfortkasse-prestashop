@@ -27,7 +27,7 @@ class LtcKomfortkasse extends Module
     {
         $this->name = 'ltckomfortkasse';
         $this->tab = 'payments_gateways';
-        $this->version = '1.7.12';
+        $this->version = '1.7.13';
         $this->author = 'Komfortkasse';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array ('min' => '1.5','max' => _PS_VERSION_
@@ -83,10 +83,8 @@ class LtcKomfortkasse extends Module
         );
         $states = OrderState::getOrderStates($language);
         foreach ($states as $state) {
-            if (!$state ['hidden']) {
-                $order_status_array [] = array ('id_option' => $state ['id_order_state'],'name' => $state ['name']
-                );
-            }
+            $order_status_array [] = array ('id_option' => $state ['id_order_state'],'name' => $state ['name']
+            );
         }
 
         // Array für Encryption Option
