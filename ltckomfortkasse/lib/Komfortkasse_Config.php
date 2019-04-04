@@ -3,12 +3,12 @@
 /**
  * Komfortkasse
  * Config Class
- * @version 1.7.9-prestashop */
+ * @version 1.7.14-prestashop */
 class Komfortkasse_Config
 {
 
     // max 32 char
-
+    const ordernumbers =                'KOMFORTKASSE_ORDERNUMBERS';
     const activate_export =             'KOMFORTKASSE_ACTIVATE_EXPORT';
     const activate_update =             'KOMFORTKASSE_ACTIVATE_UPDATE';
     const payment_methods =             'KOMFORTKASSE_PAYMENT_CODES';

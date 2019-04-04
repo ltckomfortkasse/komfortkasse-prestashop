@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.7.11-prestashop
+ * @version 1.7.14-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -42,7 +42,7 @@ class Komfortkasse_Order
         if (!$use_prepayment && !$use_invoice && !$use_cod)
             return ret;
 
-        $sql = 'SELECT reference
+        $sql = 'SELECT id, reference
 				FROM ' . (string)_DB_PREFIX_ . 'orders o
 				WHERE 0 ';
         if ($use_prepayment)
@@ -54,8 +54,9 @@ class Komfortkasse_Order
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
+        $use_id = Komfortkasse_Config::getConfig(Komfortkasse_Config::ordernumbers) == 'id';
         foreach ($result as $order) {
-            $ret [] = $order ['reference'];
+            $ret [] = $use_id ? $order ['id'] : $order ['reference'];
         }
 
         return $ret;
@@ -106,12 +107,18 @@ class Komfortkasse_Order
         }
 
         $ret = array ();
-        $ret ['number'] = $order->reference;
-        $ret ['id'] = $order->id;
+        $ret ['store_id'] = $order->id_shop;
+        if (Komfortkasse_Config::getConfig(Komfortkasse_Config::ordernumbers) == 'id') {
+            $ret ['number'] = $order->id;
+            $ret ['id'] = $order->reference;
+        } else {
+            $ret ['number'] = $order->reference;
+            $ret ['id'] = $order->id;
+        }
         $ret ['status'] = $order->getCurrentState();
         $status_full = $order->getCurrentStateFull(Configuration::get('PS_LANG_DEFAULT'));
         if (is_array($status_full))
-            $ret ['status_name'] = $status_full['name'];
+            $ret ['status_name'] = $status_full ['name'];
         $ret ['date'] = date('d.m.Y', strtotime($order->date_add));
         $ret ['email'] = $order->getCustomer()->email;
         $ret ['customer_number'] = $order->id_customer;
@@ -175,8 +182,6 @@ class Komfortkasse_Order
                 $ret ['products'] [] = $item ['product_name'];
             }
         }
-
-        $ret ['store_id'] = $order->id_shop;
 
         if (isset($order_extension) && $order_extension && method_exists('Komfortkasse_Order_Extension', 'extendOrder') === true) {
             $ret = Komfortkasse_Order_Extension::extendOrder($order, $ret);
