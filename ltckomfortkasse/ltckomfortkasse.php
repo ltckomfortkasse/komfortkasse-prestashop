@@ -27,7 +27,7 @@ class LtcKomfortkasse extends Module
     {
         $this->name = 'ltckomfortkasse';
         $this->tab = 'payments_gateways';
-        $this->version = '1.7.15';
+        $this->version = '1.7.16';
         $this->author = 'Komfortkasse';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array ('min' => '1.5','max' => _PS_VERSION_
@@ -90,7 +90,6 @@ class LtcKomfortkasse extends Module
         // Array für Encryption Option
         $encryption_array = array (array ('id_option' => null,'name' => $this->l('(no selection)')
         ),array ('id_option' => 'base64','name' => 'Base64'
-        ),array ('id_option' => 'mcrypt','name' => 'MCrypt'
         ),array ('id_option' => 'openssl','name' => 'OpenSSL'
         )
         );
