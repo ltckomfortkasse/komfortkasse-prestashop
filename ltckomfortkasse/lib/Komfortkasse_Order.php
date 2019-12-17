@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.7.14-prestashop
+ * @version 1.7.17-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
