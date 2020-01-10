@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.7.17-prestashop
+ * @version 1.7.18-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -42,7 +42,7 @@ class Komfortkasse_Order
         if (!$use_prepayment && !$use_invoice && !$use_cod)
             return ret;
 
-        $sql = 'SELECT id, reference
+        $sql = 'SELECT id_order, reference
 				FROM ' . (string)_DB_PREFIX_ . 'orders o
 				WHERE 0 ';
         if ($use_prepayment)
@@ -56,7 +56,7 @@ class Komfortkasse_Order
 
         $use_id = Komfortkasse_Config::getConfig(Komfortkasse_Config::ordernumbers) == 'id';
         foreach ($result as $order) {
-            $ret [] = $use_id ? $order ['id'] : $order ['reference'];
+            $ret [] = $use_id ? $order ['id_order'] : $order ['reference'];
         }
 
         return $ret;
