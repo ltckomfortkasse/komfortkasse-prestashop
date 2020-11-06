@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.7.18-prestashop
+ * @version 1.7.19-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -92,17 +92,23 @@ class Komfortkasse_Order
      */
     public static function getOrder($number)
     {
-        if (is_numeric($number)) {
-            $id = $number;
+        if (empty($number) === true) {
+            return null;
+        }
+
+        $use_id = Komfortkasse_Config::getConfig(Komfortkasse_Config::ordernumbers) == 'id';
+        if ($use_id) {
+            $order = new Order($number);
         } else {
             $orderColl = Order::getByReference($number);
             if ($orderColl->count() != 1)
                 return null;
-
             $id = $orderColl->getFirst()->id;
+            $order = new Order($id);
         }
-        $order = new Order($id);
-        if (empty($number) === true || empty($order) === true) {
+
+
+        if (empty($order) === true) {
             return null;
         }
 
@@ -225,7 +231,11 @@ class Komfortkasse_Order
 
         // Hint: PAID and CANCELLED are supported as of now.
 
-        $order = new Order($order ['id']);
+        if (Komfortkasse_Config::getConfig(Komfortkasse_Config::ordernumbers) == 'id') {
+            $order = new Order($order ['number']);
+        } else {
+            $order = new Order($order ['id']);
+        }
 
         // copied from AdminOrdersController
 
