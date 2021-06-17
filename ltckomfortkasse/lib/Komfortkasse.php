@@ -308,6 +308,7 @@ class Komfortkasse
             } else {
 
                 $order = Komfortkasse_Order::getOrder($id);
+
                 if ($id != $order ['number']) {
                     continue;
                 }
