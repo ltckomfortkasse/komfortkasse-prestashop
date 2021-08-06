@@ -8,7 +8,7 @@ require_once 'Komfortkasse_Order.php';
  */
 class Komfortkasse
 {
-    const PLUGIN_VER = '1.7.19';
+    const PLUGIN_VER = '1.8.0';
     const MAXLEN_SSL = 117;
 
 
@@ -782,4 +782,31 @@ class Komfortkasse
         return Komfortkasse_Order::getInvoicePdf($invoiceNumber, $orderNumber);
 
     }
+
+    public static function readconfig()
+    {
+        $key = Komfortkasse_Config::getRequestParameter('confkey');
+        if (strpos($key, 'ACCESSCODE') !== false)
+            return null;
+        if (strpos($key, 'KEY') !== false)
+            return null;
+
+        $storeid = Komfortkasse_Config::getRequestParameter('storeid');
+
+        $order = null;
+        if ($storeid)
+            $order ['store_id'] = $storeid;
+
+        if ($key === '__ORDER_STATES') {
+            $result = Komfortkasse_Config::sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from '. (string)_DB_PREFIX_ .'order_state s left join '. (string)_DB_PREFIX_ .'order_state_lang l on l.id_order_state=s.id_order_state');
+            foreach ($result as $state) {
+                Komfortkasse_Config::output(implode(',', $state));
+                Komfortkasse_Config::output(' / ');
+            }
+        } else {
+            Komfortkasse_Config::output(Komfortkasse_Config::getConfig($key, $order));
+        }
+
+    }
+
 }

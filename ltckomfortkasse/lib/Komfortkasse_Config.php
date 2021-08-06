@@ -3,7 +3,7 @@
 /**
  * Komfortkasse
  * Config Class
- * @version 1.7.14-prestashop */
+ * @version 1.8.0-prestashop */
 class Komfortkasse_Config
 {
 
@@ -105,4 +105,9 @@ class Komfortkasse_Config
     {
         echo $s;
     }
+
+    public static function sql($sql) {
+        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+    }
+
 }//end class
