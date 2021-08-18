@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.7.19-prestashop
+ * @version 1.8.1-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -107,6 +107,19 @@ class Komfortkasse_Order
             $order = new Order($id);
         }
 
+
+        if (empty($order) === true) {
+            // try with the other number
+            if (!$use_id) {
+                $order = new Order($number);
+            } else {
+                $orderColl = Order::getByReference($number);
+                if ($orderColl->count() != 1)
+                    return null;
+                    $id = $orderColl->getFirst()->id;
+                    $order = new Order($id);
+            }
+        }
 
         if (empty($order) === true) {
             return null;
