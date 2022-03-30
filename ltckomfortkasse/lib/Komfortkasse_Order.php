@@ -8,16 +8,16 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.8.1-prestashop
+ * @version 1.8.2-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
     $order_extension = true;
     include_once "Komfortkasse_Order_Extension.php";
 }
-
 class Komfortkasse_Order
 {
+
 
     /**
      * Get open order IDs.
@@ -63,12 +63,14 @@ class Komfortkasse_Order
 
     }
 
+
     // end getOpenIDs()
     private static function quote($csv)
     {
         return '\'' . str_replace(',', '\',\'', $csv) . '\'';
 
     }
+
 
     /**
      * Get refund IDS.
@@ -81,6 +83,8 @@ class Komfortkasse_Order
         return $ret;
 
     }
+
+
     // end getRefundIDs()
 
     /**
@@ -116,8 +120,8 @@ class Komfortkasse_Order
                 $orderColl = Order::getByReference($number);
                 if ($orderColl->count() != 1)
                     return null;
-                    $id = $orderColl->getFirst()->id;
-                    $order = new Order($id);
+                $id = $orderColl->getFirst()->id;
+                $order = new Order($id);
             }
         }
 
@@ -173,6 +177,7 @@ class Komfortkasse_Order
                 $ret ['delivery_countrycode'] = utf8_encode($country->iso_code);
         }
 
+        $ret ['language_id'] = $order->id_lang;
         $lang = new Language($order->id_lang);
         if ($lang) {
             $ret ['language_code'] = $lang->iso_code;
@@ -202,6 +207,12 @@ class Komfortkasse_Order
             }
         }
 
+        // order history
+        foreach ($order->getHistory($order->id_lang) as $history) {
+            $ret ['history'] [] = $history ['date_add'] . '/' . $history ['date_upd'] . ': ' . $history ['id_order_state'] . ' (' . $history ['id_employee'] . ')';
+        }
+
+
         if (isset($order_extension) && $order_extension && method_exists('Komfortkasse_Order_Extension', 'extendOrder') === true) {
             $ret = Komfortkasse_Order_Extension::extendOrder($order, $ret);
         }
@@ -209,6 +220,7 @@ class Komfortkasse_Order
         return $ret;
 
     }
+
 
     // end getOrder()
 
@@ -224,6 +236,7 @@ class Komfortkasse_Order
         return null;
 
     }
+
 
     // end getRefund()
 
@@ -278,6 +291,7 @@ class Komfortkasse_Order
 
     }
 
+
     // end updateOrder()
 
     /**
@@ -294,11 +308,13 @@ class Komfortkasse_Order
 
     }
 
+
     // end updateRefund()
     public static function getInvoicePdfPrepare()
     {
 
     }
+
 
     public static function getInvoicePdf($invoiceNumber)
     {
@@ -319,6 +335,16 @@ class Komfortkasse_Order
         Hook::exec('actionPDFInvoiceRender', array ('order_invoice_list' => array ($order_invoice
         )
         ));
+
+        // workaround for some prestashop bugs - see komfortkasse ticket #39445
+        global $kernel;
+        if (!$kernel) {
+            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
+            $kernel = new \AppKernel('prod', false);
+            $kernel->boot();
+        }
+        if (!Context::getContext()->currency)
+            Context::getContext()->currency = new Currency(Configuration::get('PS_CURRENCY_DEFAULT'));
 
         $pdf = new PDF($order_invoice, PDF::TEMPLATE_INVOICE, Context::getContext()->smarty);
         $output = $pdf->render('S');
