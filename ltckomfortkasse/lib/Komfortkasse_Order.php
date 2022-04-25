@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.8.2-prestashop
+ * @version 1.8.3-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -262,6 +262,16 @@ class Komfortkasse_Order
         } else {
             $order = new Order($order ['id']);
         }
+
+        // workaround for some prestashop bugs - see komfortkasse ticket #39445/#39738
+        global $kernel;
+        if (!$kernel) {
+            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
+            $kernel = new \AppKernel('prod', false);
+            $kernel->boot();
+        }
+        if (!Context::getContext()->currency)
+            Context::getContext()->currency = new Currency(Configuration::get('PS_CURRENCY_DEFAULT'));
 
         // copied from AdminOrdersController
 
