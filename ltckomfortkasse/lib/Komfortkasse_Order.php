@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.8.3-prestashop
+ * @version 1.8.4-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -264,6 +264,7 @@ class Komfortkasse_Order
         }
 
         // workaround for some prestashop bugs - see komfortkasse ticket #39445/#39738
+        require_once _PS_CONFIG_DIR_ . '/config.inc.php';
         global $kernel;
         if (!$kernel) {
             require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
@@ -271,14 +272,82 @@ class Komfortkasse_Order
             $kernel->boot();
         }
         if (!Context::getContext()->currency)
-            Context::getContext()->currency = new Currency(Configuration::get('PS_CURRENCY_DEFAULT'));
+            Context::getContext()->currency = new Currency($order->id_currency);
+        if (!Context::getContext()->employee)
+            Context::getContext()->employee = new Employee(null, $order->id_lang, $order->id_shop);
+        $shop = new Shop($order->id_shop);
+        Shop::setContext($shop::CONTEXT_SHOP, $shop->id);
+        Context::getContext()->shop = $shop;
+        Context::getContext()->cookie->id_shop = $shop->id;
 
         // copied from AdminOrdersController
 
         $history = new OrderHistory();
         $history->id_order = $order->id;
         $use_existings_payment = !$order->hasInvoice();
-        $history->changeIdOrderState($status, $order, $use_existings_payment);
+
+        try  {
+            $history->changeIdOrderState($status, $order, $use_existings_payment);
+        } catch (\PrestaShopBundle\Exception\NotImplementedException $e) {
+
+            // copied from OrderHistory#changeIdOrderState
+
+            $new_os = new OrderState((int) $status, $order->id_lang);
+            // $old_os = $order->getCurrentOrderState();
+
+            // executes hook
+            if (in_array($new_os->id, [Configuration::get('PS_OS_PAYMENT'), Configuration::get('PS_OS_WS_PAYMENT')])) {
+                Hook::exec('actionPaymentConfirmation', ['id_order' => (int) $order->id], null, false, true, false, $order->id_shop);
+            }
+
+            // executes hook
+            Hook::exec('actionOrderStatusUpdate', ['newOrderStatus' => $new_os, 'id_order' => (int) $order->id], null, false, true, false, $order->id_shop);
+
+            $history->id_order_state = $status;
+
+            // set orders as paid
+            if ($new_os->paid == 1) {
+                $invoices = $order->getInvoicesCollection();
+                if ($order->total_paid != 0) {
+                    $payment_method = Module::getInstanceByName($order->module);
+                }
+
+                foreach ($invoices as $invoice) {
+                    /** @var OrderInvoice $invoice */
+                    $rest_paid = $invoice->getRestPaid();
+                    if ($rest_paid > 0) {
+                        $payment = new OrderPayment();
+                        $payment->order_reference = Tools::substr($order->reference, 0, 9);
+                        $payment->id_currency = $order->id_currency;
+                        $payment->amount = $rest_paid;
+
+                        if ($order->total_paid != 0) {
+                            $payment->payment_method = $payment_method->displayName;
+                        } else {
+                            $payment->payment_method = null;
+                        }
+
+                        // Update total_paid_real value for backward compatibility reasons
+                        if ($payment->id_currency == $order->id_currency) {
+                            $order->total_paid_real += $payment->amount;
+                        } else {
+                            $order->total_paid_real += Tools::ps_round(Tools::convertPrice($payment->amount, $payment->id_currency, false), Context::getContext()->getComputingPrecision());
+                        }
+                        $order->save();
+
+                        $payment->conversion_rate = ($order ? $order->conversion_rate : 1);
+                        $payment->save();
+                        Db::getInstance()->execute('
+                    INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment` (`id_order_invoice`, `id_order_payment`, `id_order`)
+                    VALUES(' . (int) $invoice->id . ', ' . (int) $payment->id . ', ' . (int) $order->id . ')');
+                    }
+                }
+            }
+
+            // executes hook
+            Hook::exec('actionOrderStatusPostUpdate', ['newOrderStatus' => $new_os, 'id_order' => (int) $order->id], null, false, true, false, $order->id_shop);
+
+        }
 
         $carrier = new Carrier($order->id_carrier, $order->id_lang);
         $templateVars = array ();

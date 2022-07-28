@@ -8,7 +8,7 @@ require_once 'Komfortkasse_Order.php';
  */
 class Komfortkasse
 {
-    const PLUGIN_VER = '1.8.3';
+    const PLUGIN_VER = '1.8.4';
     const MAXLEN_SSL = 117;
 
 
@@ -381,7 +381,8 @@ class Komfortkasse
 
         $order = Komfortkasse_Order::getOrder($id);
         $order['type'] = self::getOrderType($order);
-
+        if (!$order['type'])
+            return;
         if (!Komfortkasse_Config::getConfig(Komfortkasse_Config::activate_export, $order)) {
             return;
         }

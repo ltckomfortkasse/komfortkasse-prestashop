@@ -3,7 +3,7 @@
 /**
  * Komfortkasse
  * Config Class
- * @version 1.8.0-prestashop */
+ * @version 1.8.4-prestashop */
 class Komfortkasse_Config
 {
 
@@ -58,7 +58,7 @@ class Komfortkasse_Config
     public static function getConfig($constantKey, $order = null)
     {
         $id_shop = null;
-        if ($order != null) {
+        if ($order != null && array_key_exists('store_id', $order)) {
             $id_shop = $order ['store_id'];
         }
 
