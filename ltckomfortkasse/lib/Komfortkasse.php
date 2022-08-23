@@ -8,7 +8,7 @@ require_once 'Komfortkasse_Order.php';
  */
 class Komfortkasse
 {
-    const PLUGIN_VER = '1.8.4';
+    const PLUGIN_VER = '1.9.5';
     const MAXLEN_SSL = 117;
 
 
@@ -308,13 +308,16 @@ class Komfortkasse
             } else {
 
                 $order = Komfortkasse_Order::getOrder($id);
-
                 if ($id != $order ['number']) {
                     continue;
                 }
 
                 $newstatus = Komfortkasse::getNewStatus($status, $order);
                 if (empty($newstatus) === true) {
+                    if ($status == 'PAID' && method_exists('Komfortkasse_Order', 'setPaid')) {
+                        Komfortkasse_Order::setPaid($order, $callbackid);
+                        $o = $o . Komfortkasse::kk_csv($id);
+                    }
                     continue;
                 }
 
@@ -325,9 +328,14 @@ class Komfortkasse
                 }
 
                 // dont update if order is no longer relevant (will be marked as DISAPPEARED later on)
-                if (in_array($order ['number'], $openids) === false) {
-                    continue;
+                $updateOk = in_array($order ['number'], $openids);
+                if ($updateOk === false) {
+                    // setting from CANCELLED to PAID is allowed if not open
+                    if ($status == 'PAID' && $order['status'] == Komfortkasse::getNewStatus('CANCELLED', $order))
+                        $updateOk = true;
                 }
+                if ($updateOk === false)
+                    continue;
 
                 Komfortkasse_Order::updateOrder($order, $newstatus, $callbackid);
             }
@@ -375,7 +383,9 @@ class Komfortkasse
      */
     public static function notifyorder($id)
     {
+        Komfortkasse_Config::log('notifyorder BEGIN');
         if (!Komfortkasse_Config::getConfig(Komfortkasse_Config::activate_export)) {
+            Komfortkasse_Config::log('notifyorder END: global config not active');
             return;
         }
 
@@ -384,13 +394,16 @@ class Komfortkasse
         if (!$order['type'])
             return;
         if (!Komfortkasse_Config::getConfig(Komfortkasse_Config::activate_export, $order)) {
+            Komfortkasse_Config::log('notifyorder END: order config not active');
             return;
         }
         // See if order is relevant.
         if (!self::isOpen($order)) {
+            Komfortkasse_Config::log('notifyorder END: order not open (1)');
             return;
         }
         if (method_exists ('Komfortkasse_Order', 'isOpen') && !Komfortkasse_Order::isOpen($order)) {
+            Komfortkasse_Config::log('notifyorder END: order not open (2)');
             return;
         }
 
@@ -407,10 +420,8 @@ class Komfortkasse
         $context = stream_context_create(array ('http' => $contextData
         ));
 
-        // Development:
-        // $result = @file_get_contents('http://localhost:8080/kkos01/api/shop/neworder.jsf', false, $context);
+        // Development: http://localhost:8080/kkos01/api...
         $result = @file_get_contents('http://api.komfortkasse.eu/api/shop/neworder.jsf', false, $context);
-
     }
 
  // end notifyorder()
@@ -704,7 +715,6 @@ class Komfortkasse
  // end kkdecrypt_openssl()
 
 
-
     /**
      * Output CSV.
      *
@@ -798,16 +808,7 @@ class Komfortkasse
         if ($storeid)
             $order ['store_id'] = $storeid;
 
-        if ($key === '__ORDER_STATES') {
-            $result = Komfortkasse_Config::sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from '. (string)_DB_PREFIX_ .'order_state s left join '. (string)_DB_PREFIX_ .'order_state_lang l on l.id_order_state=s.id_order_state');
-            foreach ($result as $state) {
-                Komfortkasse_Config::output(implode(',', $state));
-                Komfortkasse_Config::output(' / ');
-            }
-        } else {
-            Komfortkasse_Config::output(Komfortkasse_Config::getConfig($key, $order));
-        }
-
+    	Komfortkasse_Config::output(Komfortkasse_Config::getConfig($key, $order));
     }
 
 }

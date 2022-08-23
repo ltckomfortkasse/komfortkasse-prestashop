@@ -3,7 +3,7 @@
 /**
  * Komfortkasse
  * Config Class
- * @version 1.8.4-prestashop */
+ * @version 1.9.5-prestashop */
 class Komfortkasse_Config
 {
 
@@ -57,6 +57,14 @@ class Komfortkasse_Config
      */
     public static function getConfig($constantKey, $order = null)
     {
+        if ($constantKey === '__ORDER_STATES') {
+            $result = sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from ' . (string)_DB_PREFIX_ . 'order_state s left join ' . (string)_DB_PREFIX_ . 'order_state_lang l on l.id_order_state=s.id_order_state');
+            $ret = '';
+            foreach ($result as $state)
+                $ret = $ret . implode(',', $state) . ' / ';
+            return $ret;
+        }
+
         $id_shop = null;
         if ($order != null && array_key_exists('store_id', $order)) {
             $id_shop = $order ['store_id'];
@@ -108,6 +116,10 @@ class Komfortkasse_Config
 
     public static function sql($sql) {
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+    }
+
+    public static function log($s) {
+       // not implemented
     }
 
 }//end class
