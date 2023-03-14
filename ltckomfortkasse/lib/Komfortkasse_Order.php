@@ -8,7 +8,7 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
- * @version 1.8.4-prestashop
+ * @version 1.9.6-prestashop
  */
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
@@ -50,7 +50,7 @@ class Komfortkasse_Order
         if ($use_invoice)
             $sql .= ' or (o.current_state in (' . (string)$status_invoice . ') and o.module in (' . (string)self::quote("$methods_invoice") . '))';
         if ($use_cod)
-            $sql .= ' or (o.current_state in (' . (string)$status_cod . ') and o.module in (' . (string)self::quote("$methods_cod") . ')';
+            $sql .= ' or (o.current_state in (' . (string)$status_cod . ') and o.module in (' . (string)self::quote("$methods_cod") . '))';
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
