@@ -10,6 +10,9 @@
  *
  * @version 1.10.5-prestashop
  */
+if (! defined('_PS_VERSION_')) {
+    exit();
+}
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
     $order_extension = true;

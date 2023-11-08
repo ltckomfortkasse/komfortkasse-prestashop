@@ -4,6 +4,10 @@
  * Komfortkasse
  * Config Class
  * @version 1.9.5-prestashop */
+if (! defined('_PS_VERSION_')) {
+    exit();
+}
+
 class Komfortkasse_Config
 {
 

@@ -5,6 +5,10 @@
  *
  * @version 1.4.3-prestashop
  */
+if (! defined('_PS_VERSION_')) {
+    exit();
+}
+
 ini_set('default_charset', 'utf-8');
 
 // error_reporting(E_ALL);

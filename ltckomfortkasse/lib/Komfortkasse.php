@@ -1,4 +1,8 @@
 <?php
+if (! defined('_PS_VERSION_')) {
+    exit();
+}
+
 require_once 'Komfortkasse_Config.php';
 require_once 'Komfortkasse_Order.php';
 
