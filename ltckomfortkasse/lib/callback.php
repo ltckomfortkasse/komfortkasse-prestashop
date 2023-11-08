@@ -3,6 +3,8 @@
  * Komfortkasse
  * routing
  *
+ * @author Komfortkasse Integration Team
+ * @copyright 2018-2023 LTC Information Services GmbH
  * @version 1.4.3-prestashop
  */
 if (! defined('_PS_VERSION_')) {

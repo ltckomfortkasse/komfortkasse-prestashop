@@ -1,4 +1,11 @@
 <?php
+/**
+ * Komfortkasse
+ * Main Class
+ *
+ * @author Komfortkasse Integration Team
+ * @copyright 2018-2023 LTC Information Services GmbH
+ * @version see below */
 if (! defined('_PS_VERSION_')) {
     exit();
 }

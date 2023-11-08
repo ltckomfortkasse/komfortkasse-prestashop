@@ -2,6 +2,9 @@
 /**
  * Komfortkasse
  * Config Class
+ * 
+ * @author Komfortkasse Integration Team
+ * @copyright 2018-2023 LTC Information Services GmbH
  * @version 1.9.5-prestashop */
 if (! defined('_PS_VERSION_')) {
     exit();

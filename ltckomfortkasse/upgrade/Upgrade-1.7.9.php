@@ -1,8 +1,4 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * NOTICE OF LICENSE
  *
@@ -16,6 +12,10 @@ if (! defined('_PS_VERSION_')) {
  * @copyright 2018 LTC Information Services GmbH
  * @license https://creativecommons.org/licenses/by/3.0
  */
+if (! defined('_PS_VERSION_')) {
+    exit();
+}
+
 function upgrade_module_1_7_9($module)
 {
 

@@ -7,6 +7,8 @@
  * delivery_ and billing_: _firstname, _lastname, _company, _street, _postcode, _city, _countrycode
  * products: an Array of item numbers
  *
+ * @author Komfortkasse Integration Team
+ * @copyright 2018-2023 LTC Information Services GmbH
  * @version 1.10.5-prestashop
  */
 if (! defined('_PS_VERSION_')) {
