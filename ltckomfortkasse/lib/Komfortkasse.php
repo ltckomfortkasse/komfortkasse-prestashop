@@ -5,6 +5,7 @@
  *
  * @author Komfortkasse Integration Team
  * @copyright 2018-2023 LTC Information Services GmbH
+ * @license https://creativecommons.org/licenses/by/3.0
  * @version see below */
 if (! defined('_PS_VERSION_')) {
     exit();
