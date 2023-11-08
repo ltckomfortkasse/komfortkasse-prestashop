@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Komfortkasse Order Class
  * in KK, an Order is an Array providing the following members:

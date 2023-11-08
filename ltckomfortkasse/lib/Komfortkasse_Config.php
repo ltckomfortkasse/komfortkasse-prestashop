@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Komfortkasse
  * Config Class

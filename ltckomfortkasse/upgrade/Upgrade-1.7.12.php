@@ -1,4 +1,8 @@
 <?php
+if (! defined('_PS_VERSION_')) {
+    exit();
+}
+
 /**
  * NOTICE OF LICENSE
  *
@@ -8,11 +12,9 @@
  *
  * You must not modify, adapt or create derivative works of this source code
  *
- * @author    Komfortkasse Integration Team
+ * @author Komfortkasse Integration Team
  * @copyright 2018 LTC Information Services GmbH
- * @license   https://creativecommons.org/licenses/by/3.0
+ * @license https://creativecommons.org/licenses/by/3.0
  */
-
 function upgrade_module_1_7_12($module)
-{
-}
+{}
