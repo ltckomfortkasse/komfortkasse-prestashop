@@ -12,8 +12,8 @@
  * @copyright 2016 LTC Information Services GmbH
  * @license   https://creativecommons.org/licenses/by/3.0
  */
-if (! defined('_PS_VERSION_')) {
-    exit();
+if (!defined('_PS_VERSION_')) {
+    exit;
 }
 
 require_once 'lib/Komfortkasse_Config.php';
@@ -26,7 +26,7 @@ class LtcKomfortkasse extends Module
     {
         $this->name = 'ltckomfortkasse';
         $this->tab = 'payments_gateways';
-        $this->version = '1.10.5';
+        $this->version = '1.10.6';
         $this->author = 'Komfortkasse';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(

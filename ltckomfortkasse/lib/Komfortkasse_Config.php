@@ -2,13 +2,13 @@
 /**
  * Komfortkasse
  * Config Class
- * 
+ *
  * @author Komfortkasse Integration Team
  * @copyright 2018-2023 LTC Information Services GmbH
  * @license https://creativecommons.org/licenses/by/3.0
- * @version 1.9.5-prestashop */
-if (! defined('_PS_VERSION_')) {
-    exit();
+ * @version 1.10.6-prestashop */
+if (!defined('_PS_VERSION_')) {
+    exit;
 }
 
 class Komfortkasse_Config
@@ -63,7 +63,7 @@ class Komfortkasse_Config
      *            Constant Key
      * @param string $value
      *            Value
-     *            
+     *
      * @return void
      */
     public static function setConfig($constantKey, $value)
@@ -79,13 +79,13 @@ class Komfortkasse_Config
      *
      * @param string $constantKey
      *            Constant Key
-     *            
+     *
      * @return mixed
      */
     public static function getConfig($constantKey, $order = null)
     {
         if ($constantKey === '__ORDER_STATES') {
-            $result = sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from ' . (string) _DB_PREFIX_ . 'order_state s left join ' . (string) _DB_PREFIX_ . 'order_state_lang l on l.id_order_state=s.id_order_state');
+            $result = Komfortkasse_Config::sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from ' . (string) _DB_PREFIX_ . 'order_state s left join ' . (string) _DB_PREFIX_ . 'order_state_lang l on l.id_order_state=s.id_order_state');
             $ret = '';
             foreach ($result as $state)
                 $ret = $ret . implode(',', $state) . ' / ';
@@ -108,7 +108,7 @@ class Komfortkasse_Config
      *
      * @param string $key
      *            Key
-     *            
+     *
      * @return string
      */
     public static function getRequestParameter($key)

@@ -7,8 +7,8 @@
  * @copyright 2018-2023 LTC Information Services GmbH
  * @license https://creativecommons.org/licenses/by/3.0
  * @version see below */
-if (! defined('_PS_VERSION_')) {
-    exit();
+if (!defined('_PS_VERSION_')) {
+    exit;
 }
 
 require_once 'Komfortkasse_Config.php';
@@ -21,7 +21,7 @@ require_once 'Komfortkasse_Order.php';
 class Komfortkasse
 {
 
-    const PLUGIN_VER = '1.10.5';
+    const PLUGIN_VER = '1.10.6';
 
     const MAXLEN_SSL = 117;
 
@@ -54,7 +54,7 @@ class Komfortkasse
      *
      * @param bool $refunds
      *            if refunds should be read.
-     *            
+     *
      * @return void
      */
     public static function read($refunds)
@@ -312,7 +312,7 @@ class Komfortkasse
      *
      * @param bool $refunds
      *            if refunds should be updated.
-     *            
+     *
      * @return void
      */
     public static function update($refunds)
@@ -430,7 +430,7 @@ class Komfortkasse
      *
      * @param unknown $id
      *            Order ID
-     *            
+     *
      * @return void
      */
     public static function notifyorder($id)
@@ -545,7 +545,7 @@ class Komfortkasse
      *
      * @param unknown $status
      *            Status
-     *            
+     *
      * @return mixed
      */
     protected static function getNewStatus($status, $order)
@@ -623,7 +623,7 @@ class Komfortkasse
      *            encryption method
      * @param string $keystring
      *            key string
-     *            
+     *
      * @return mixed
      *
      */
@@ -659,7 +659,7 @@ class Komfortkasse
      *            encryption method
      * @param string $keystring
      *            key string
-     *            
+     *
      * @return Ambigous <boolean, string>|string
      */
     public static function kkdecrypt($s, $encryption = null, $keystring = null)
@@ -689,7 +689,7 @@ class Komfortkasse
      *
      * @param string $encryption
      *            encryption method
-     *            
+     *
      * @return mixed
      */
     protected static function kkcrypterror($encryption = null)
@@ -711,7 +711,7 @@ class Komfortkasse
      *
      * @param string $s
      *            String to encrypt
-     *            
+     *
      * @return string decrypted string
      */
     protected static function kkencrypt_base64($s)
@@ -726,7 +726,7 @@ class Komfortkasse
      *
      * @param string $s
      *            String to decrypt
-     *            
+     *
      * @return string decrypted string
      */
     protected static function kkdecrypt_base64($s)
@@ -743,7 +743,7 @@ class Komfortkasse
      *            String to encrypt
      * @param string $keystring
      *            Key string
-     *            
+     *
      * @return string decrypted string
      */
     protected static function kkencrypt_openssl($s, $keystring)
@@ -779,7 +779,7 @@ class Komfortkasse
      *            String to decrypt
      * @param string $keystring
      *            Key string
-     *            
+     *
      * @return string decrypted string
      */
     protected static function kkdecrypt_openssl($s, $keystring)
@@ -814,7 +814,7 @@ class Komfortkasse
      *
      * @param string $s
      *            String to output
-     *            
+     *
      * @return string CSV
      */
     protected static function kk_csv($s)
@@ -829,7 +829,7 @@ class Komfortkasse
      *
      * @param array $array
      *            Arrays
-     *            
+     *
      * @return int count
      */
     protected static function mycount($array)

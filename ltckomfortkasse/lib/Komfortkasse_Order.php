@@ -12,9 +12,10 @@
  * @license https://creativecommons.org/licenses/by/3.0
  * @version 1.10.5-prestashop
  */
-if (! defined('_PS_VERSION_')) {
-    exit();
+if (!defined('_PS_VERSION_')) {
+    exit;
 }
+
 $order_extension = false;
 if (file_exists("Komfortkasse_Order_Extension.php") === true) {
     $order_extension = true;
@@ -91,7 +92,7 @@ class Komfortkasse_Order
      *
      * @param string $number
      *            order number
-     *            
+     *
      * @return array order
      */
     public static function getOrder($number)
@@ -225,7 +226,7 @@ class Komfortkasse_Order
      *
      * @param string $number
      *            refund number
-     *            
+     *
      * @return array refund
      */
     public static function getRefund($number)
@@ -244,7 +245,7 @@ class Komfortkasse_Order
      *            status
      * @param string $callbackid
      *            callback ID
-     *            
+     *
      * @return void
      */
     public static function updateOrder($order, $status, $callbackid)
@@ -389,7 +390,7 @@ class Komfortkasse_Order
      *            status
      * @param string $callbackid
      *            callback ID
-     *            
+     *
      * @return void
      */
     public static function updateRefund($refundIncrementId, $status, $callbackid)
