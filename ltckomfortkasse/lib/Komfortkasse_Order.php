@@ -56,17 +56,17 @@ class Komfortkasse_Order
         $use_cod = $methods_cod && $status_cod;
 
         if (! $use_prepayment && ! $use_invoice && ! $use_cod)
-            return ret;
+            return $ret;
 
-        $sql = 'SELECT id_order, reference
-				FROM ' . _DB_PREFIX_ . 'orders o
+        $sql = 'SELECT `id_order`, `reference`
+				FROM `' . _DB_PREFIX_ . 'orders` o
 				WHERE 0 ';
         if ($use_prepayment)
-            $sql .= ' or (o.current_state in (' . (string) $status_prepayment . ') and o.module in (' . (string) self::quote("$methods_prepayment") . '))';
+            $sql .= ' or (o.`current_state` in (' . self::intList($status_prepayment) . ') and o.`module` in (' . self::quote($methods_prepayment) . '))';
         if ($use_invoice)
-            $sql .= ' or (o.current_state in (' . (string) $status_invoice . ') and o.module in (' . (string) self::quote("$methods_invoice") . '))';
+            $sql .= ' or (o.`current_state` in (' . self::intList($status_invoice) . ') and o.`module` in (' . self::quote($methods_invoice) . '))';
         if ($use_cod)
-            $sql .= ' or (o.current_state in (' . (string) $status_cod . ') and o.module in (' . (string) self::quote("$methods_cod") . '))';
+            $sql .= ' or (o.`current_state` in (' . self::intList($status_cod) . ') and o.`module` in (' . self::quote($methods_cod) . '))';
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
@@ -79,9 +79,47 @@ class Komfortkasse_Order
     }
 
     // end getOpenIDs()
+    /**
+     * Same result as the deprecated utf8_encode() (ISO-8859-1 -> UTF-8), without the
+     * PHP 8.2+ deprecation notice.
+     */
+    private static function latin1ToUtf8($s)
+    {
+        return mb_convert_encoding((string) $s, 'UTF-8', 'ISO-8859-1');
+    }
+
+    /**
+     * Split a comma separated config value into trimmed, non-empty parts.
+     */
+    private static function csvParts($csv)
+    {
+        $parts = array();
+        foreach (explode(',', str_replace('"', '', (string) $csv)) as $part) {
+            $part = trim($part);
+            if ($part !== '')
+                $parts[] = $part;
+        }
+        return $parts;
+    }
+
+    /**
+     * Comma separated list of order state IDs for an SQL IN clause, cast to int.
+     */
+    private static function intList($csv)
+    {
+        $ids = array_map('intval', self::csvParts($csv));
+        return empty($ids) ? '0' : implode(',', $ids);
+    }
+
+    /**
+     * Comma separated list of quoted, escaped module names for an SQL IN clause.
+     */
     private static function quote($csv)
     {
-        return '\'' . str_replace(',', '\',\'', $csv) . '\'';
+        $quoted = array();
+        foreach (self::csvParts($csv) as $part)
+            $quoted[] = '\'' . pSQL($part) . '\'';
+        return empty($quoted) ? '\'\'' : implode(',', $quoted);
     }
 
     /**
@@ -176,15 +214,15 @@ class Komfortkasse_Order
 
         $shippingAddress = new Address($order->id_address_delivery);
         if ($shippingAddress) {
-            $ret['delivery_firstname'] = utf8_encode($shippingAddress->firstname);
-            $ret['delivery_lastname'] = utf8_encode($shippingAddress->lastname);
-            $ret['delivery_company'] = utf8_encode($shippingAddress->company);
-            $ret['delivery_street'] = utf8_encode(trim($shippingAddress->address1 . ' ' . $shippingAddress->address2));
-            $ret['delivery_postcode'] = utf8_encode($shippingAddress->postcode);
-            $ret['delivery_city'] = utf8_encode($shippingAddress->city);
+            $ret['delivery_firstname'] = self::latin1ToUtf8($shippingAddress->firstname);
+            $ret['delivery_lastname'] = self::latin1ToUtf8($shippingAddress->lastname);
+            $ret['delivery_company'] = self::latin1ToUtf8($shippingAddress->company);
+            $ret['delivery_street'] = self::latin1ToUtf8(trim($shippingAddress->address1 . ' ' . $shippingAddress->address2));
+            $ret['delivery_postcode'] = self::latin1ToUtf8($shippingAddress->postcode);
+            $ret['delivery_city'] = self::latin1ToUtf8($shippingAddress->city);
             $country = new Country($shippingAddress->id_country);
             if ($country)
-                $ret['delivery_countrycode'] = utf8_encode($country->iso_code);
+                $ret['delivery_countrycode'] = self::latin1ToUtf8($country->iso_code);
         }
 
         $ret['language_id'] = $order->id_lang;
@@ -195,15 +233,15 @@ class Komfortkasse_Order
 
         $billingAddress = new Address($order->id_address_invoice);
         if ($billingAddress) {
-            $ret['billing_firstname'] = utf8_encode($billingAddress->firstname);
-            $ret['billing_lastname'] = utf8_encode($billingAddress->lastname);
-            $ret['billing_company'] = utf8_encode($billingAddress->company);
-            $ret['billing_street'] = utf8_encode(trim($billingAddress->address1 . ' ' . $billingAddress->address2));
-            $ret['billing_postcode'] = utf8_encode($billingAddress->postcode);
-            $ret['billing_city'] = utf8_encode($billingAddress->city);
+            $ret['billing_firstname'] = self::latin1ToUtf8($billingAddress->firstname);
+            $ret['billing_lastname'] = self::latin1ToUtf8($billingAddress->lastname);
+            $ret['billing_company'] = self::latin1ToUtf8($billingAddress->company);
+            $ret['billing_street'] = self::latin1ToUtf8(trim($billingAddress->address1 . ' ' . $billingAddress->address2));
+            $ret['billing_postcode'] = self::latin1ToUtf8($billingAddress->postcode);
+            $ret['billing_city'] = self::latin1ToUtf8($billingAddress->city);
             $country = new Country($billingAddress->id_country);
             if ($country && $country->iso_code) {
-                $ret['billing_countrycode'] = utf8_encode($country->iso_code);
+                $ret['billing_countrycode'] = self::latin1ToUtf8($country->iso_code);
                 if ($ret['language_code'] && $country->iso_code)
                     $ret['language_code'] .= '-' . $country->iso_code;
             }

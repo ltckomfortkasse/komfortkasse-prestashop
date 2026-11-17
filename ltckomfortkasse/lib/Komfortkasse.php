@@ -125,6 +125,10 @@ class Komfortkasse
      */
     public static function test()
     {
+        if (Komfortkasse::check() === false) {
+            return;
+        }
+
         $dec = Komfortkasse::kkdecrypt(Komfortkasse_Config::getRequestParameter('test'));
 
         $enc = Komfortkasse::kkencrypt($dec);
@@ -620,25 +624,24 @@ class Komfortkasse
     public static function check()
     {
         $ac = Komfortkasse_Config::getRequestParameter('accesscode');
-        if (! $ac)
+        if (! is_string($ac) || $ac === '')
             return false;
         $md5 = call_user_func('md5', $ac);
 
-        $subshops = str_replace(' ', '', Komfortkasse_Config::getRequestParameter('s'));
+        $subshops = Komfortkasse_Config::getRequestParameter('s');
+        if (! is_string($subshops))
+            return false;
+        $subshops = str_replace(' ', '', $subshops);
         if ($subshops) {
             foreach (explode(',', $subshops) as $s) {
                 $order_store_id = array();
                 $order_store_id['store_id'] = $s;
-                if ($md5 !== Komfortkasse_Config::getConfig(Komfortkasse_Config::accesscode, $order_store_id))
+                if (! hash_equals((string) Komfortkasse_Config::getConfig(Komfortkasse_Config::accesscode, $order_store_id), $md5))
                     return false;
             }
             return true;
         } else {
-            if ($md5 !== Komfortkasse_Config::getConfig(Komfortkasse_Config::accesscode)) {
-                return false;
-            } else {
-                return true;
-            }
+            return hash_equals((string) Komfortkasse_Config::getConfig(Komfortkasse_Config::accesscode), $md5);
         }
     }
 
@@ -849,7 +852,8 @@ class Komfortkasse
      */
     protected static function kk_csv($s)
     {
-        return '"' . str_replace('"', '', str_replace(';', ',', utf8_encode($s))) . '";';
+        // mb_convert_encoding ISO-8859-1 -> UTF-8: same result as the deprecated utf8_encode().
+        return '"' . str_replace('"', '', str_replace(';', ',', mb_convert_encoding((string) $s, 'UTF-8', 'ISO-8859-1'))) . '";';
     }
 
     // end kk_csv()
@@ -918,9 +922,31 @@ class Komfortkasse
     public static function readconfig()
     {
         $key = Komfortkasse_Config::getRequestParameter('confkey');
-        if (strpos($key, 'ACCESSCODE') !== false)
-            return null;
-        if (strpos($key, 'KEY') !== false)
+
+        // Only a fixed list of non-sensitive Komfortkasse configuration keys may be read
+        // (the keys Komfortkasse requests for "show configuration"). This prevents reading
+        // arbitrary PrestaShop configuration (e.g. PS_MAIL_PASSWD or other modules' secrets)
+        // and never returns the plugin's own secrets (access code, API key, keys).
+        $allowed = array(
+            Komfortkasse_Config::ordernumbers,
+            Komfortkasse_Config::activate_export,
+            Komfortkasse_Config::activate_update,
+            Komfortkasse_Config::payment_methods,
+            Komfortkasse_Config::status_open,
+            Komfortkasse_Config::status_paid,
+            Komfortkasse_Config::status_cancelled,
+            Komfortkasse_Config::payment_methods_invoice,
+            Komfortkasse_Config::status_open_invoice,
+            Komfortkasse_Config::status_paid_invoice,
+            Komfortkasse_Config::status_cancelled_invoice,
+            Komfortkasse_Config::payment_methods_cod,
+            Komfortkasse_Config::status_open_cod,
+            Komfortkasse_Config::status_paid_cod,
+            Komfortkasse_Config::status_cancelled_cod,
+            Komfortkasse_Config::encryption,
+            '__ORDER_STATES'
+        );
+        if (! is_string($key) || ! in_array($key, $allowed, true))
             return null;
 
         $storeid = Komfortkasse_Config::getRequestParameter('storeid');
@@ -934,6 +960,10 @@ class Komfortkasse
 
     public static function apitest()
     {
+        if (Komfortkasse::check() === false) {
+            return;
+        }
+
         $order = Komfortkasse::getStoreIdOrderFromRequest();
         $order['order_id'] = 'apitest';
         $ret = Komfortkasse::notifyorderInternal($order, 'test');
