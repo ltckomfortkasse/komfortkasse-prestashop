@@ -85,7 +85,7 @@ class Komfortkasse_Config
     public static function getConfig($constantKey, $order = null)
     {
         if ($constantKey === '__ORDER_STATES') {
-            $result = Komfortkasse_Config::sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from ' . (string) _DB_PREFIX_ . 'order_state s left join ' . (string) _DB_PREFIX_ . 'order_state_lang l on l.id_order_state=s.id_order_state');
+            $result = Komfortkasse_Config::sql('select s.id_order_state, s.module_name, l.id_lang, l.name, s.deleted from ' . _DB_PREFIX_ . 'order_state s left join ' . _DB_PREFIX_ . 'order_state_lang l on l.id_order_state=s.id_order_state');
             $ret = '';
             foreach ($result as $state)
                 $ret = $ret . implode(',', $state) . ' / ';

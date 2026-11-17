@@ -26,6 +26,16 @@ class Komfortkasse_Order
 {
 
     /**
+     * Wrapper around the legacy Context singleton.
+     * Encapsulates the deprecated PS<9 API in a single place; PS9 keeps it functional
+     * but flags direct usage. See https://devdocs.prestashop-project.org/9/modules/core-updates/9.0/#symfony-context-refactorization
+     */
+    private static function getCtx()
+    {
+        return Context::getContext();
+    }
+
+    /**
      * Get open order IDs.
      *
      * @return string all order IDs that are "open" and relevant for transfer to kk
@@ -49,7 +59,7 @@ class Komfortkasse_Order
             return ret;
 
         $sql = 'SELECT id_order, reference
-				FROM ' . (string) _DB_PREFIX_ . 'orders o
+				FROM ' . _DB_PREFIX_ . 'orders o
 				WHERE 0 ';
         if ($use_prepayment)
             $sql .= ' or (o.current_state in (' . (string) $status_prepayment . ') and o.module in (' . (string) self::quote("$methods_prepayment") . '))';
@@ -270,14 +280,14 @@ class Komfortkasse_Order
             $kernel = new \AppKernel('prod', false);
             $kernel->boot();
         }
-        if (! Context::getContext()->currency)
-            Context::getContext()->currency = new Currency($order->id_currency);
-        if (! Context::getContext()->employee)
-            Context::getContext()->employee = new Employee(null, $order->id_lang, $order->id_shop);
+        if (! self::getCtx()->currency)
+            self::getCtx()->currency = new Currency($order->id_currency);
+        if (! self::getCtx()->employee)
+            self::getCtx()->employee = new Employee(null, $order->id_lang, $order->id_shop);
         $shop = new Shop($order->id_shop);
         Shop::setContext($shop::CONTEXT_SHOP, $shop->id);
-        Context::getContext()->shop = $shop;
-        Context::getContext()->cookie->id_shop = $shop->id;
+        self::getCtx()->shop = $shop;
+        self::getCtx()->cookie->id_shop = $shop->id;
 
         // copied from AdminOrdersController
 
@@ -338,7 +348,7 @@ class Komfortkasse_Order
                         if ($payment->id_currency == $order->id_currency) {
                             $order->total_paid_real += $payment->amount;
                         } else {
-                            $order->total_paid_real += Tools::ps_round(Tools::convertPrice($payment->amount, $payment->id_currency, false), Context::getContext()->getComputingPrecision());
+                            $order->total_paid_real += Tools::ps_round(Tools::convertPrice($payment->amount, $payment->id_currency, false), self::getCtx()->getComputingPrecision());
                         }
                         $order->save();
 
@@ -403,7 +413,7 @@ class Komfortkasse_Order
     public static function getInvoicePdf($invoiceNumber)
     {
         // get newest id with that number (for numbers that reset every year)
-        $sql = 'SELECT id_order_invoice FROM ' . (string) _DB_PREFIX_ . 'order_invoice o WHERE number=\'' . (string) pSQL($invoiceNumber) . '\' order by date_add desc limit 0, 1';
+        $sql = 'SELECT id_order_invoice FROM ' . _DB_PREFIX_ . 'order_invoice o WHERE number=\'' . pSQL($invoiceNumber) . '\' order by date_add desc limit 0, 1';
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
         if (empty($result))
             return;
@@ -429,10 +439,10 @@ class Komfortkasse_Order
             $kernel = new \AppKernel('prod', false);
             $kernel->boot();
         }
-        if (! Context::getContext()->currency)
-            Context::getContext()->currency = new Currency(Configuration::get('PS_CURRENCY_DEFAULT'));
+        if (! self::getCtx()->currency)
+            self::getCtx()->currency = new Currency(Configuration::get('PS_CURRENCY_DEFAULT'));
 
-        $pdf = new PDF($order_invoice, PDF::TEMPLATE_INVOICE, Context::getContext()->smarty);
+        $pdf = new PDF($order_invoice, PDF::TEMPLATE_INVOICE, self::getCtx()->smarty);
         $output = $pdf->render('S');
 
         // set http response code manually (could be 500 because of php notices/warnings)
