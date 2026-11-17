@@ -200,10 +200,10 @@ class Komfortkasse_Order
             $ret['currency_code'] = $currency->iso_code;
         $ret['exchange_rate'] = $order->conversion_rate;
 
-        // Rechnungsnummer und -datum
+        // invoice number and date
         foreach ($order->getInvoicesCollection() as $invoice) {
             if (is_object($invoice) && $invoice->number) {
-                // nicht getInvoiceNumberFormatted() verwenden, da wir sonst nie wieder auf die ID zurückkommen
+                // don't use getInvoiceNumberFormatted(), otherwise the invoice can't be mapped back to its ID
                 $ret['invoice_number'][] = str_pad($invoice->number, 6, '0', STR_PAD_LEFT);
                 $invoiceDate = date('d.m.Y', strtotime($invoice->date_add));
                 if (! array_key_exists('invoice_date', $ret) || $ret['invoice_date'] == null || strtotime($ret['invoice_date']) < strtotime($invoiceDate)) {

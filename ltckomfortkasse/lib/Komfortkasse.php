@@ -67,7 +67,7 @@ class Komfortkasse
             return;
         }
 
-        // Schritt 1: alle IDs ausgeben.
+        // Step 1: output all IDs.
         $param = Komfortkasse_Config::getRequestParameter('o');
         $param = Komfortkasse::kkdecrypt($param);
 
@@ -89,7 +89,7 @@ class Komfortkasse
             $ex = explode(';', $param);
             foreach ($ex as $id) {
                 $id = trim($id);
-                // Schritt 2: details pro auftrag ausgeben.
+                // Step 2: output details per order.
                 if ($refunds === true) {
                     $order = Komfortkasse_Order::getRefund($id);
                 } else {

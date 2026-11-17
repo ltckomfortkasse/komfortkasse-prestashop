@@ -66,7 +66,7 @@ class LtcKomfortkasse extends Module
 
         $language = $this->context->language->id;
 
-        // Array für die Anzeige der Zahlungsarten vorbereiten
+        // options for the payment method selection
         $payment_method_array = array();
         $payment_method_array[] = array(
             'id_option' => null,
@@ -82,7 +82,7 @@ class LtcKomfortkasse extends Module
             }
         }
 
-        // Array für die Anzeige der Bestellstatus vorbereiten
+        // options for the order state selection
         $order_status_array = array();
         $order_status_array[] = array(
             'id_option' => null,
@@ -96,7 +96,7 @@ class LtcKomfortkasse extends Module
             );
         }
 
-        // Array für Encryption Option
+        // options for the encryption selection
         $encryption_array = array(
             array(
                 'id_option' => null,
