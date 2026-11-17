@@ -21,7 +21,7 @@ require_once 'Komfortkasse_Order.php';
 class Komfortkasse
 {
 
-    const PLUGIN_VER = '1.10.7';
+    const PLUGIN_VER = '1.10.8';
 
     const MAXLEN_SSL = 117;
 
@@ -472,14 +472,22 @@ class Komfortkasse
             'hash' => Komfortkasse_Config::getConfig(Komfortkasse_Config::accesscode, $order),
             'key' => Komfortkasse_Config::getConfig(Komfortkasse_Config::apikey, $order)
         ));
-        $url = 'http://api.komfortkasse.eu/api/shop/' . $path . '.jsf';
+        // API key and access code hash are sent with the request, so only ever use TLS
+        // and never fall back to plain HTTP. If the push fails, Komfortkasse still picks
+        // the order up on its regular sync.
+        $url = 'https://ssl.komfortkasse.eu/api/shop/' . $path . '.jsf';
         $timeout = 2;
+        $result = false;
+        $curlError = null;
 
         if (extension_loaded('curl')) {
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            // No redirects: a 307/308 would resend the POST body (incl. key) elsewhere.
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
@@ -487,25 +495,47 @@ class Komfortkasse
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
             $result = @curl_exec($ch);
-            if ($result === false)
-                $result = curl_error($ch);
+            if ($result === false) {
+                $curlError = 'curl: ' . curl_error($ch);
+                // On timeout don't retry, so order creation isn't delayed twice.
+                if (curl_errno($ch) == 28)
+                    $result = $curlError;
+            }
             @curl_close($ch);
-        } else {
+        }
 
+        if ($result === false && ! in_array('https', stream_get_wrappers())) {
+
+            // No openssl extension: skip rather than send the key unencrypted.
+            $result = ($curlError ? $curlError . '; ' : '') . 'https stream wrapper not available';
+        } else if ($result === false) {
+
+            // No curl, or curl failed (e.g. missing CA bundle for curl): try PHP streams,
+            // which use OpenSSL's / the system's CA store. Still TLS with peer verification.
             $contextData = array(
                 'method' => 'POST',
                 'timeout' => $timeout,
+                'follow_location' => 0,
                 'header' => "Connection: close\r\n" . 'Content-Length: ' . strlen($query) . "\r\n",
                 'content' => $query
             );
 
+            $sslData = array(
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'peer_name' => 'ssl.komfortkasse.eu'
+            );
+
             $context = stream_context_create(array(
-                'http' => $contextData
+                'http' => $contextData,
+                'ssl' => $sslData
             ));
 
             $result = @file_get_contents($url, false, $context);
-            if ($result === false)
-                $result = error_get_last();
+            if ($result === false) {
+                $e = error_get_last();
+                $result = ($curlError ? $curlError . '; ' : '') . 'stream: ' . ($e ? $e['message'] : 'request failed');
+            }
         }
 
         return $result;

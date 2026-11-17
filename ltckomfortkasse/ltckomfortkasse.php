@@ -26,7 +26,7 @@ class LtcKomfortkasse extends Module
     {
         $this->name = 'ltckomfortkasse';
         $this->tab = 'payments_gateways';
-        $this->version = '1.10.7';
+        $this->version = '1.10.8';
         $this->author = 'Komfortkasse';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
