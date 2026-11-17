@@ -257,7 +257,8 @@ class Komfortkasse_Order
 
         // order history
         foreach ($order->getHistory($order->id_lang) as $history) {
-            $ret['history'][] = $history['date_add'] . '/' . $history['date_upd'] . ': ' . $history['id_order_state'] . ' (' . $history['id_employee'] . ')';
+            // order_history has no date_upd column (PS 1.7+); keep the format, empty value as before
+            $ret['history'][] = $history['date_add'] . '/' . (isset($history['date_upd']) ? $history['date_upd'] : '') . ': ' . $history['id_order_state'] . ' (' . $history['id_employee'] . ')';
         }
 
         if (isset($order_extension) && $order_extension && method_exists('Komfortkasse_Order_Extension', 'extendOrder') === true) {

@@ -94,7 +94,7 @@ class Komfortkasse
                     $order = Komfortkasse_Order::getRefund($id);
                 } else {
                     $order = Komfortkasse_Order::getOrder($id);
-                    if ($order['payment_method'])
+                    if ($order && ! empty($order['payment_method']))
                         $order['type'] = self::getOrderType($order);
                 }
 
