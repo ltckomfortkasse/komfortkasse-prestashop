@@ -9,7 +9,7 @@ Das Komfortkasse-Modul für PrestaShop automatisiert den Zahlungsabgleich für *
 | Merkmal | Angabe |
 |---|---|
 | Shopsystem | [PrestaShop](https://prestashop.com/) |
-| Unterstützte Versionen | PrestaShop 1.7, 8 und 9 |
+| Unterstützte Versionen | PrestaShop ab 1.7 |
 | Zahlungsarten | Vorkasse (Vorauskasse, Banküberweisung), Rechnung (Kauf auf Rechnung), Nachnahme |
 | Aufgabe des Moduls | Überträgt offene Bestellungen an Komfortkasse und setzt den Bestellstatus bei Zahlungseingang oder Storno |
 | Technischer Name | `ltckomfortkasse` (Ordner `modules/ltckomfortkasse`) |
@@ -48,7 +48,7 @@ Komfortkasse versendet außerdem Zahlungserinnerungen an Käufer, behandelt Teil
 
 ## Voraussetzungen
 
-- PrestaShop 1.7, 8 oder 9
+- PrestaShop ab Version 1.7
 - Ein Komfortkasse-Account ([kostenlos registrieren](https://ssl.komfortkasse.eu/public/register.jsf))
 - Ein Bankkonto, das Sie mit Komfortkasse verbinden ([unterstützte Banken](https://komfortkasse.eu/banken/)), oder ein integriertes Bankkonto von Komfortkasse
 - Ein aktives Zahlungsmodul je genutzter Zahlungsart, für Vorkasse in der Regel „Banküberweisung“. Für Kauf auf Rechnung bringt PrestaShop standardmäßig kein Zahlungsmodul mit; dafür ist ein zusätzliches Modul nötig.
@@ -111,6 +111,6 @@ Fragen zur Einrichtung beantworten die [Hilfe-Seiten](https://komfortkasse.fresh
 
 **Komfortkasse module for PrestaShop.** Komfortkasse automatically matches incoming bank transfers to open orders in your shop and updates the order status as soon as the payment has arrived. It supports prepayment by bank transfer (Vorkasse), invoice and cash on delivery. Komfortkasse is a service of LTC Information Services GmbH for online merchants in Germany, Austria and Switzerland.
 
-The module supports PrestaShop 1.7, 8 and 9. It does not add a payment method to the checkout; it works with the shop's existing payment modules (e.g. bank wire). The module is free of charge when downloaded from the landing page or this repository; on the PrestaShop Addons Marketplace it is a paid listing that includes starting credit for Komfortkasse. Komfortkasse itself is a paid service ([pricing](https://komfortkasse.eu/preise/)).
+The module supports PrestaShop 1.7 or later. It does not add a payment method to the checkout; it works with the shop's existing payment modules (e.g. bank wire). The module is free of charge when downloaded from the landing page or this repository; on the PrestaShop Addons Marketplace it is a paid listing that includes starting credit for Komfortkasse. Komfortkasse itself is a paid service ([pricing](https://komfortkasse.eu/preise/)).
 
 Installation: install the module in the PrestaShop back office under "Modules", enable "Export orders" and "Update order status", select the payment modules and order statuses for prepayment, invoice and cash on delivery, then connect the shop in your Komfortkasse account. More information: [Komfortkasse for PrestaShop](https://komfortkasse.eu/shopsysteme/prestashop/) · [Installation guide (English)](https://komfortkasse.freshdesk.com/support/solutions/articles/14000152617)
